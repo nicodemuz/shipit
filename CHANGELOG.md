@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-09-03
+
+### Changed
+- Require `saloonphp/saloon` `^4.0` (clears known Saloon 3.x security advisories).
+
 ## [1.0.0] - 2026-09-03
 
 ### Changed

@@ -21,7 +21,7 @@
     ],
     "require": {
         "php": "^8.4.0",
-        "saloonphp/saloon": "^3.14"
+        "saloonphp/saloon": "^4.0"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.5",
@@ -45,13 +45,6 @@
         "sort-packages": true,
         "allow-plugins": {
             "php-http/discovery": true
-        },
-        "audit": {
-            "ignore": [
-                "PKSA-xnj5-w74d-6wmz",
-                "PKSA-rnpm-45mg-w6ht",
-                "PKSA-5szq-gvrg-ttfq"
-            ]
         }
     },
     "scripts": {
