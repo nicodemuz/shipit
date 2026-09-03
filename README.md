@@ -10,11 +10,11 @@ This is a fork of [`cline/shipit`](https://github.com/faustbrian/shipit) with La
 
 ## Installation
 
-Until the package is on Packagist under this fork, require it from GitHub:
+Until the package is on Packagist under this fork, require a tagged release from GitHub:
 
 ```bash
 composer config repositories.nicodemuz-shipit vcs https://github.com/nicodemuz/shipit
-composer require nicodemuz/shipit:dev-main
+composer require nicodemuz/shipit:^1.0
 ```
 
 ## Symfony
