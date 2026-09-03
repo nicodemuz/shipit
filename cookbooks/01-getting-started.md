@@ -15,10 +15,10 @@ composer require nicodemuz/shipit:dev-main
 ## Basic Setup
 
 ```php
+use Cline\Shipit\Auth\ShipitKeySecretAuthenticator;
 use Cline\Shipit\Connector\ShipitConnector;
-use Saloon\Http\Auth\BasicAuthenticator;
 
-// Shipit.fi merchant credentials (API key + secret)
+// Shipit.fi merchant credentials (X-SHIPIT-KEY + X-SHIPIT-SECRET)
 $shipit = ShipitConnector::basic('your-api-key', 'your-api-secret');
 
 // Bearer token
@@ -26,8 +26,8 @@ $shipit = ShipitConnector::token('your-api-token');
 
 // Explicit constructor (Symfony DI)
 $shipit = new ShipitConnector(
-    'https://api.shipit.fi',
-    new BasicAuthenticator('your-api-key', 'your-api-secret'),
+    ShipitConnector::TEST_BASE_URL,
+    new ShipitKeySecretAuthenticator('your-api-key', 'your-api-secret'),
 );
 
 // Test API
@@ -42,15 +42,15 @@ $shipit = ShipitConnector::basic(
 
 ```yaml
 services:
-    Saloon\Http\Auth\BasicAuthenticator:
+    Cline\Shipit\Auth\ShipitKeySecretAuthenticator:
         arguments:
-            $username: '%env(SHIPIT_API_KEY)%'
-            $password: '%env(SHIPIT_API_SECRET)%'
+            $apiKey: '%env(SHIPIT_API_KEY)%'
+            $apiSecret: '%env(SHIPIT_API_SECRET)%'
 
     Cline\Shipit\Connector\ShipitConnector:
         arguments:
             $baseUrl: '%env(SHIPIT_API_BASE_URL)%'
-            $auth: '@Saloon\Http\Auth\BasicAuthenticator'
+            $auth: '@Cline\Shipit\Auth\ShipitKeySecretAuthenticator'
 ```
 
 ## Available Resources

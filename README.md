@@ -19,20 +19,20 @@ composer require nicodemuz/shipit:dev-main
 
 ## Symfony
 
-Register the Saloon connector in the container. Shipit.fi merchant credentials use HTTP Basic (API key + secret):
+Register the Saloon connector in the container. Shipit.fi merchant credentials use the `X-SHIPIT-KEY` and `X-SHIPIT-SECRET` headers (`ShipitKeySecretAuthenticator`). Use `https://apitest.shipit.ax` for non-production.
 
 ```yaml
 # config/services.yaml
 services:
-    Saloon\Http\Auth\BasicAuthenticator:
+    Cline\Shipit\Auth\ShipitKeySecretAuthenticator:
         arguments:
-            $username: '%env(SHIPIT_API_KEY)%'
-            $password: '%env(SHIPIT_API_SECRET)%'
+            $apiKey: '%env(SHIPIT_API_KEY)%'
+            $apiSecret: '%env(SHIPIT_API_SECRET)%'
 
     Cline\Shipit\Connector\ShipitConnector:
         arguments:
             $baseUrl: '%env(SHIPIT_API_BASE_URL)%'
-            $auth: '@Saloon\Http\Auth\BasicAuthenticator'
+            $auth: '@Cline\Shipit\Auth\ShipitKeySecretAuthenticator'
 ```
 
 Then inject `ShipitConnector` as usual.
@@ -40,10 +40,10 @@ Then inject `ShipitConnector` as usual.
 ## Quick Start
 
 ```php
+use Cline\Shipit\Auth\ShipitKeySecretAuthenticator;
 use Cline\Shipit\Connector\ShipitConnector;
-use Saloon\Http\Auth\BasicAuthenticator;
 
-// Shipit.fi merchant API (key + secret)
+// Shipit.fi merchant API (key + secret headers)
 $shipit = ShipitConnector::basic('your-api-key', 'your-api-secret');
 
 // Or Bearer token
@@ -51,8 +51,8 @@ $shipit = ShipitConnector::token('your-api-token');
 
 // Explicit base URL (Symfony / custom environments)
 $shipit = new ShipitConnector(
-    'https://api.shipit.fi',
-    new BasicAuthenticator('your-api-key', 'your-api-secret'),
+    ShipitConnector::TEST_BASE_URL,
+    new ShipitKeySecretAuthenticator('your-api-key', 'your-api-secret'),
 );
 
 // Test environment

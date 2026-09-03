@@ -64,7 +64,20 @@ final class GetAgentsRequest extends Request implements HasBody
      */
     public function createDtoFromResponse(Response $response): AgentsResponseData
     {
-        return AgentsResponseData::from($response->json());
+        $payload = $response->json();
+        if (!is_array($payload)) {
+            $payload = [];
+        }
+
+        if (!isset($payload['locations']) || !is_array($payload['locations'])) {
+            $payload['locations'] = [];
+        }
+
+        if (!isset($payload['status'])) {
+            $payload['status'] = $response->status();
+        }
+
+        return AgentsResponseData::from($payload);
     }
 
     /**
@@ -74,6 +87,11 @@ final class GetAgentsRequest extends Request implements HasBody
      */
     protected function defaultBody(): array
     {
-        return $this->data;
+        $data = $this->data;
+        if (isset($data['serviceId']) && is_string($data['serviceId']) && '' !== $data['serviceId']) {
+            $data['serviceId'] = [$data['serviceId']];
+        }
+
+        return $data;
     }
 }

@@ -111,7 +111,19 @@ abstract class Data
         }
 
         if (null === $value) {
-            return null;
+            if (self::acceptsOptional($parameter)) {
+                return Optional::create();
+            }
+
+            if ($parameter->allowsNull()) {
+                return null;
+            }
+
+            throw new InvalidArgumentException(sprintf(
+                'Property "%s" cannot be null for %s.',
+                $parameter->getName(),
+                $parameter->getDeclaringClass()?->getName() ?? 'DTO',
+            ));
         }
 
         $collectionOf = self::collectionItemClass($parameter);

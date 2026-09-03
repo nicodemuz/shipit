@@ -23,8 +23,8 @@ use Cline\Shipit\Resources\ShipmentsResource;
 use Cline\Shipit\Resources\ShippingMethodsResource;
 use Cline\Shipit\Resources\TrackingResource;
 use Cline\Shipit\Resources\UserResource;
+use Cline\Shipit\Auth\ShipitKeySecretAuthenticator;
 use Saloon\Contracts\Authenticator;
-use Saloon\Http\Auth\BasicAuthenticator;
 use Saloon\Http\Auth\TokenAuthenticator;
 use Saloon\Http\Connector;
 use Saloon\Http\Response;
@@ -51,7 +51,7 @@ final class ShipitConnector extends Connector
 
     /**
      * @param string        $baseUrl API base URL (trailing slash optional)
-     * @param Authenticator $auth    Basic (Shipit.fi key+secret) or Bearer token
+     * @param Authenticator $auth    Shipit.fi key+secret headers or Bearer token
      */
     public function __construct(string $baseUrl, Authenticator $auth)
     {
@@ -60,14 +60,16 @@ final class ShipitConnector extends Connector
     }
 
     /**
-     * Create a connector with Shipit.fi Basic authentication (API key + secret).
+     * Create a connector with Shipit.fi merchant authentication (API key + secret headers).
+     *
+     * Defaults to the live API. Pass {@see TEST_BASE_URL} (`https://apitest.shipit.ax`) for non-production.
      */
     public static function basic(
         string $apiKey,
         string $apiSecret,
         string $baseUrl = self::LIVE_BASE_URL,
     ): self {
-        return new self($baseUrl, new BasicAuthenticator($apiKey, $apiSecret));
+        return new self($baseUrl, new ShipitKeySecretAuthenticator($apiKey, $apiSecret));
     }
 
     /**
