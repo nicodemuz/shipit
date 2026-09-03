@@ -3,30 +3,54 @@
 ## Installation
 
 ```bash
-composer require cline/shipit
+composer config repositories.nicodemuz-shipit vcs https://github.com/nicodemuz/shipit
+composer require nicodemuz/shipit:dev-main
 ```
 
 ## Requirements
 
 - PHP 8.4+
 - Saloon v3
-- Spatie Laravel Data v4
 
 ## Basic Setup
 
-The SDK provides three factory methods for creating a connector:
-
 ```php
 use Cline\Shipit\Connector\ShipitConnector;
+use Saloon\Http\Auth\BasicAuthenticator;
 
-// Auto-detects environment: production uses live API, non-production uses test API
-$shipit = ShipitConnector::new('your-api-token');
+// Shipit.fi merchant credentials (API key + secret)
+$shipit = ShipitConnector::basic('your-api-key', 'your-api-secret');
 
-// Explicitly use live API (https://api.shipit.ax)
-$shipit = ShipitConnector::live('your-api-token');
+// Bearer token
+$shipit = ShipitConnector::token('your-api-token');
 
-// Explicitly use test API (https://apitest.shipit.ax)
-$shipit = ShipitConnector::test('your-api-token');
+// Explicit constructor (Symfony DI)
+$shipit = new ShipitConnector(
+    'https://api.shipit.fi',
+    new BasicAuthenticator('your-api-key', 'your-api-secret'),
+);
+
+// Test API
+$shipit = ShipitConnector::basic(
+    'your-api-key',
+    'your-api-secret',
+    ShipitConnector::TEST_BASE_URL,
+);
+```
+
+## Symfony container
+
+```yaml
+services:
+    Saloon\Http\Auth\BasicAuthenticator:
+        arguments:
+            $username: '%env(SHIPIT_API_KEY)%'
+            $password: '%env(SHIPIT_API_SECRET)%'
+
+    Cline\Shipit\Connector\ShipitConnector:
+        arguments:
+            $baseUrl: '%env(SHIPIT_API_BASE_URL)%'
+            $auth: '@Saloon\Http\Auth\BasicAuthenticator'
 ```
 
 ## Available Resources
@@ -56,7 +80,6 @@ All methods return typed DTOs that throw exceptions on HTTP errors:
 try {
     $methods = $shipit->shippingMethods()->get($requestData);
 
-    // Access typed properties
     foreach ($methods->methods as $method) {
         echo $method->serviceName;
         echo $method->price;

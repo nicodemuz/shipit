@@ -9,8 +9,8 @@
 
 namespace Cline\Shipit\Data;
 
-use Spatie\LaravelData\Data;
-use Spatie\LaravelData\Optional;
+use Cline\Shipit\Dto\Data;
+use Cline\Shipit\Dto\Optional;
 
 /**
  * Represents a physical parcel or package in a shipment.

@@ -9,7 +9,7 @@
 
 namespace Cline\Shipit\Data\Responses;
 
-use Spatie\LaravelData\Data;
+use Cline\Shipit\Dto\Data;
 
 /**
  * Represents organization member data in API responses.

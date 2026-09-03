@@ -9,10 +9,10 @@
 
 namespace Cline\Shipit\Data;
 
-use Spatie\LaravelData\Attributes\DataCollectionOf;
-use Spatie\LaravelData\Data;
-use Spatie\LaravelData\DataCollection;
-use Spatie\LaravelData\Optional;
+use Cline\Shipit\Dto\DataCollectionOf;
+use Cline\Shipit\Dto\Data;
+use Cline\Shipit\Dto\DataCollection;
+use Cline\Shipit\Dto\Optional;
 
 /**
  * Request data for retrieving available shipping methods.

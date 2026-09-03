@@ -1,37 +1,33 @@
 {
-    "name": "cline/shipit",
-    "description": "Shipit SDK for PHP",
+    "name": "nicodemuz/shipit",
+    "description": "Framework-agnostic Shipit.fi PHP SDK (Saloon)",
     "license": "MIT",
     "keywords": [
         "php",
         "shipit",
-        "sdk"
+        "sdk",
+        "saloon",
+        "symfony"
     ],
     "authors": [
         {
             "name": "Brian Faust",
             "email": "brian@cline.sh"
+        },
+        {
+            "name": "Nico",
+            "homepage": "https://github.com/nicodemuz"
         }
     ],
     "require": {
         "php": "^8.4.0",
-        "saloonphp/laravel-plugin": "^3.6",
-        "saloonphp/saloon": "^3.14",
-        "spatie/laravel-data": "^4.18",
-        "saloonphp/pagination-plugin": "^2.2"
+        "saloonphp/saloon": "^3.14"
     },
     "require-dev": {
-        "cline/php-cs-fixer": "^1.0.4",
-        "driftingly/rector-laravel": "^2.1.0",
-        "ergebnis/composer-normalize": "^2.49@dev",
-        "laravel/pint": "^1.25.1",
-        "orchestra/testbench": "^10.6",
-        "pestphp/pest": "^3.8.4",
-        "pestphp/pest-plugin-laravel": "^3.2",
-        "pestphp/pest-plugin-type-coverage": "^3.6.1",
-        "phpstan/phpstan": "^2.1.31",
-        "rector/rector": "^2.2.3",
-        "symfony/var-dumper": "^7.3.4"
+        "friendsofphp/php-cs-fixer": "^3.5",
+        "phpstan/phpstan": "^2.1",
+        "phpunit/phpunit": "^11.5|^12.0|^13.0",
+        "symfony/var-dumper": "^7.0|^8.0"
     },
     "minimum-stability": "stable",
     "prefer-stable": true,
@@ -46,25 +42,21 @@
         }
     },
     "config": {
+        "sort-packages": true,
         "allow-plugins": {
-            "ergebnis/composer-normalize": true,
-            "pestphp/pest-plugin": true
+            "php-http/discovery": true
+        },
+        "audit": {
+            "ignore": [
+                "PKSA-xnj5-w74d-6wmz",
+                "PKSA-rnpm-45mg-w6ht",
+                "PKSA-5szq-gvrg-ttfq"
+            ]
         }
     },
     "scripts": {
-        "lint": "vendor/bin/php-cs-fixer fix",
-        "refactor": "rector",
-        "test": [
-            "@test:lint",
-            "@test:type-coverage",
-            "@test:unit",
-            "@test:types",
-            "@test:refactor"
-        ],
-        "test:lint": "vendor/bin/php-cs-fixer check --diff",
-        "test:refactor": "rector --dry-run",
-        "test:type-coverage": "pest --parallel --exactly=0 --type-coverage",
+        "test": "phpunit",
         "test:types": "phpstan",
-        "test:unit": "pest --parallel --exactly=0 --coverage"
+        "lint": "php-cs-fixer fix"
     }
 }

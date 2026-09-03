@@ -9,8 +9,8 @@
 
 namespace Cline\Shipit\Data\Responses;
 
-use Spatie\LaravelData\Data;
-use Spatie\LaravelData\Optional;
+use Cline\Shipit\Dto\Data;
+use Cline\Shipit\Dto\Optional;
 
 /**
  * Represents a carrier service point or pickup location.

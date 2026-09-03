@@ -9,7 +9,7 @@
 
 namespace Cline\Shipit\Data;
 
-use Spatie\LaravelData\Data;
+use Cline\Shipit\Dto\Data;
 
 /**
  * Represents Cash on Delivery (COD) payment information.

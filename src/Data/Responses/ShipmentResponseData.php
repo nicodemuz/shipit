@@ -9,8 +9,8 @@
 
 namespace Cline\Shipit\Data\Responses;
 
-use Spatie\LaravelData\Data;
-use Spatie\LaravelData\Optional;
+use Cline\Shipit\Dto\Data;
+use Cline\Shipit\Dto\Optional;
 
 /**
  * Represents the API response data for a shipment creation or update operation.
