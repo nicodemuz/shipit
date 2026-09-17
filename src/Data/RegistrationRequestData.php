@@ -10,42 +10,45 @@
 namespace Cline\Shipit\Data;
 
 use Cline\Shipit\Dto\Data;
+use Cline\Shipit\Dto\Optional;
 
 /**
- * Represents a user registration request.
+ * Merchant registration request for Shipit.fi (`PUT /v1/register`).
  *
- * This data object encapsulates the information required to create
- * a new user account in the shipping platform. All fields are required
- * for successful registration and account provisioning.
+ * Creates a merchant account and returns API credentials (key/secret).
  *
  * @author Brian Faust <brian@cline.sh>
  */
 final class RegistrationRequestData extends Data
 {
     /**
-     * Create a new registration request data instance.
-     *
-     * @param string $email    Valid email address for the user account. Used for login authentication,
-     *                         account verification, and communication. Must be unique within the
-     *                         platform and follow standard email format validation.
-     * @param string $password User's chosen password for account security. Should meet minimum
-     *                         security requirements such as length and complexity as defined by
-     *                         the platform's security policy.
-     * @param string $name     Full name or company name of the user registering for the account.
-     *                         Used for account identification, shipping documentation, and customer
-     *                         service interactions.
-     * @param string $phone    Contact phone number for the user account. Used for account verification,
-     *                         two-factor authentication, and shipment notifications. Should include
-     *                         country code for international users.
-     * @param string $country  ISO 3166-1 alpha-2 country code (e.g., "US", "GB", "DE") representing
-     *                         the user's country of operation. Determines available shipping services,
-     *                         pricing, and regional settings for the account.
+     * @param string          $name                 Merchant or company display name
+     * @param string          $email                Account email address
+     * @param string          $phone                Contact phone number
+     * @param string          $address              Street address
+     * @param string          $postcode             Postal code
+     * @param string          $city                 City
+     * @param string          $country              ISO 3166-1 alpha-2 country code
+     * @param Optional|string $state                State or region (optional)
+     * @param bool|Optional   $isCompany            Whether the merchant is a company
+     * @param Optional|string $contactPerson        Primary contact person name
+     * @param Optional|string $businessId           Business ID / Y-tunnus
+     * @param Optional|string $eori                 EORI number for customs
+     * @param bool|Optional   $subscribeNewsletter  Newsletter opt-in
      */
     public function __construct(
-        public readonly string $email,
-        public readonly string $password,
         public readonly string $name,
+        public readonly string $email,
         public readonly string $phone,
+        public readonly string $address,
+        public readonly string $postcode,
+        public readonly string $city,
         public readonly string $country,
+        public readonly string|Optional $state,
+        public readonly bool|Optional $isCompany,
+        public readonly string|Optional $contactPerson,
+        public readonly string|Optional $businessId,
+        public readonly string|Optional $eori,
+        public readonly bool|Optional $subscribeNewsletter,
     ) {}
 }

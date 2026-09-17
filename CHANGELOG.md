@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-09-17
+
+### Added
+- Merchant registration DTOs aligned with Shipit.fi (`credentials.key` / `credentials.secret`).
+- Shipping-methods request filters: `serviceId`, `retrievePickupLocations`, `maxPickupLocations`.
+- Shipment response return tracking fields and `isSuccess()` (`status === 1`).
+- Typed tracking-event query response (`data[]` with `happened_at` mapping).
+- Listed shipping-method catalog DTO for `/v1/list-methods`.
+
+### Changed
+- Service-point location fields match shipping-methods payload (`address1`, `zipcode`, `countryCode`, …).
+- Shipping method quotes include `delivery` / `deliveryTimezone`.
+- Shipment request supports `isTestShipment`, `companyIsSending`, `companyIsReceiving`, `pickup`.
+- Parcel request supports `contents`.
+
 ## [1.1.0] - 2026-09-03
 
 ### Changed

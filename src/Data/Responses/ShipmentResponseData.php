@@ -43,24 +43,14 @@ final class ShipmentResponseData extends Data
      * @param Optional|string                           $shipitNumber   Unique Shipit platform identifier for this shipment,
      *                                                                  used for internal tracking, support queries, and API
      *                                                                  operations. This differs from the carrier tracking number.
-     * @param array<string, mixed>|Optional             $freightDoc     Freight documentation data including waybills, customs
-     *                                                                  forms, and commercial invoices required for international
-     *                                                                  shipments. Contains URLs or base64-encoded document data.
-     * @param Optional|string                           $receipt        Receipt or proof of shipment data including timestamps,
-     *                                                                  costs, and confirmation details. Used for accounting
-     *                                                                  and audit purposes.
-     * @param array<int, array<string, mixed>>|Optional $labels         Shipping label data including URLs or base64-encoded
-     *                                                                  label images in various formats (PDF, PNG, ZPL).
-     *                                                                  Multiple labels may be provided for multi-package
-     *                                                                  shipments or different label sizes.
-     * @param Optional|string                           $cartId         Shopping cart identifier if the shipment was created through
-     *                                                                  a cart-based checkout flow. Used to associate shipments with
-     *                                                                  e-commerce transactions.
-     * @param Optional|string                           $cartItemId     specific cart item identifier linking this shipment to an
-     *                                                                  individual product or line item within a shopping cart
-     * @param array<string, mixed>|Optional             $error          Error information including error codes, messages, and
-     *                                                                  validation failures when the shipment operation fails.
-     *                                                                  Contains structured error details for client handling.
+     * @param array<int, string>|Optional               $freightDoc            Freight document URLs (waybills, labels)
+     * @param Optional|string                           $receipt               Receipt or proof of shipment data
+     * @param array<int, mixed>|Optional                $labels                Shipping label data (URLs or encoded payloads)
+     * @param Optional|string                           $cartId                Shopping cart identifier
+     * @param Optional|string                           $cartItemId            Cart item identifier
+     * @param array<string, mixed>|Optional             $error                 Structured error details on failure
+     * @param Optional|string                           $returnTrackingNumber  Return shipment tracking number
+     * @param array<int, string>|Optional               $returnTrackingUrls    Return shipment tracking URLs
      */
     public function __construct(
         public readonly int $status,
@@ -74,5 +64,15 @@ final class ShipmentResponseData extends Data
         public readonly string|Optional $cartId,
         public readonly string|Optional $cartItemId,
         public readonly array|Optional $error,
+        public readonly string|Optional $returnTrackingNumber,
+        public readonly array|Optional $returnTrackingUrls,
     ) {}
+
+    /**
+     * Shipit.fi shipment create uses status `1` for success (not HTTP 200).
+     */
+    public function isSuccess(): bool
+    {
+        return 1 === $this->status;
+    }
 }

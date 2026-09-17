@@ -18,11 +18,10 @@ use Saloon\Http\Response;
 use Saloon\Traits\Body\HasJsonBody;
 
 /**
- * Registers a new user account in the system.
+ * Registers a new merchant account on Shipit.fi.
  *
- * Creates a new user account with the provided registration details including credentials,
- * contact information, and initial preferences. Returns authentication tokens and user
- * profile upon successful registration.
+ * Creates a merchant account and returns API credentials (key/secret)
+ * for subsequent authenticated API calls.
  *
  * @author Brian Faust <brian@cline.sh>
  */
@@ -33,43 +32,26 @@ final class RegisterRequest extends Request implements HasBody
     protected Method $method = Method::PUT;
 
     /**
-     * Create a new user registration request instance.
-     *
-     * @param RegistrationRequestData $data User registration information including required
-     *                                      credentials (email, password), personal details (name,
-     *                                      company), contact information, and optional preferences
-     *                                      or settings. All data is validated against registration
-     *                                      requirements before account creation.
+     * @param RegistrationRequestData $data Merchant registration details
      */
     public function __construct(
         private readonly RegistrationRequestData $data,
     ) {}
 
-    /**
-     * Resolve the API endpoint for user registration.
-     *
-     * @return string The user registration endpoint path
-     */
     public function resolveEndpoint(): string
     {
         return '/v1/register';
     }
 
-    /**
-     * Transform the API response into a typed data object.
-     *
-     * @param  Response                 $response The HTTP response from the registration endpoint
-     * @return RegistrationResponseData New user account details and authentication tokens
-     */
     public function createDtoFromResponse(Response $response): RegistrationResponseData
     {
-        return RegistrationResponseData::from($response->json());
+        $payload = $response->json();
+
+        return RegistrationResponseData::from(is_array($payload) ? $payload : []);
     }
 
     /**
-     * Build the request body containing registration details.
-     *
-     * @return array<string, mixed> User registration data for account creation
+     * @return array<string, mixed>
      */
     protected function defaultBody(): array
     {

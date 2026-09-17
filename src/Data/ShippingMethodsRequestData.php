@@ -68,12 +68,15 @@ final class ShippingMethodsRequestData extends Data
      * @param bool|Optional                   $cod                    Enables cash on delivery service where payment is collected upon
      *                                                                delivery. Restricts available methods to carriers supporting COD
      *                                                                and includes COD service fees in pricing
-     * @param bool|Optional                   $includeDescriptions    Includes detailed service descriptions in response when
-     *                                                                true. Provides additional context about each shipping
-     *                                                                method including features, restrictions, and service levels
-     * @param Optional|string                 $userSessionId          Session identifier for tracking user interactions and maintaining
-     *                                                                stateful operations across multiple API calls. Used for analytics
-     *                                                                and debugging user-specific shipping method queries
+     * @param bool|Optional                   $includeDescriptions     Includes detailed service descriptions in response when
+     *                                                                 true. Provides additional context about each shipping
+     *                                                                 method including features, restrictions, and service levels
+     * @param Optional|string                 $userSessionId           Session identifier for tracking user interactions and maintaining
+     *                                                                 stateful operations across multiple API calls. Used for analytics
+     *                                                                 and debugging user-specific shipping method queries
+     * @param array<int, string>|Optional     $serviceId               Optional filter of service IDs to price
+     * @param bool|Optional                   $retrievePickupLocations When true, include nearby pickup locations in the response
+     * @param int|Optional                    $maxPickupLocations      Cap on pickup locations returned when retrieving them
      */
     public function __construct(
         public readonly PartyData $sender,
@@ -92,5 +95,8 @@ final class ShippingMethodsRequestData extends Data
         public readonly bool|Optional $cod,
         public readonly bool|Optional $includeDescriptions,
         public readonly string|Optional $userSessionId,
+        public readonly array|Optional $serviceId,
+        public readonly bool|Optional $retrievePickupLocations,
+        public readonly int|Optional $maxPickupLocations,
     ) {}
 }

@@ -17,69 +17,62 @@ echo $user->phone;
 echo $user->role;
 ```
 
-## Register New User
+## Register New Merchant
 
-Create a new user account:
+Create a merchant account and receive API credentials:
 
 ```php
 use Cline\Shipit\Data\RegistrationRequestData;
 
 $registration = $shipit->user()->register(
     RegistrationRequestData::from([
-        'name' => 'John Doe',
-        'email' => 'john@company.com',
+        'name' => 'Company Ltd',
+        'email' => 'ops@company.com',
         'phone' => '+358401234567',
-        'password' => 'secure-password',
-        'password_confirmation' => 'secure-password',
-        'company' => 'Company Ltd',
+        'address' => 'Street 1',
+        'postcode' => '00100',
+        'city' => 'Helsinki',
+        'country' => 'FI',
+        'isCompany' => true,
+        'contactPerson' => 'John Doe',
         'businessId' => '1234567-8',
+        'subscribeNewsletter' => false,
     ])
 );
 
-// Returns RegistrationResponseData
-echo $registration->userId;
-echo $registration->apiToken;  // Save this for API authentication
+// Returns RegistrationResponseData with credentials.key / credentials.secret
+if ($registration->hasCredentials()) {
+    echo $registration->credentials->key;
+    echo $registration->credentials->secret;
+}
 ```
 
-## User Authentication Flow
-
-Implement user registration and authentication:
+## Store Merchant Credentials
 
 ```php
-class UserManager
+class MerchantRegistrar
 {
     public function __construct(
         private ShipitConnector $shipit
     ) {}
 
-    public function registerUser(array $userData): RegistrationResponseData
+    /**
+     * @return array{0: string, 1: string} API key and secret
+     */
+    public function registerMerchant(array $merchantData): array
     {
-        $registration = $shipit->user()->register(
-            RegistrationRequestData::from($userData)
+        $registration = $this->shipit->user()->register(
+            RegistrationRequestData::from($merchantData)
         );
 
-        // Store API token for future use
-        $this->storeApiToken(
-            $registration->userId,
-            $registration->apiToken
-        );
+        if ($registration->hasError() || !$registration->hasCredentials()) {
+            throw new RuntimeException('Shipit merchant registration failed.');
+        }
 
-        return $registration;
-    }
-
-    public function getCurrentUser(): UserResponseData
-    {
-        return $this->shipit->user()->me();
-    }
-
-    private function storeApiToken(string $userId, string $token): void
-    {
-        // Store in your database
-        DB::table('shipit_tokens')->insert([
-            'user_id' => $userId,
-            'api_token' => $token,
-            'created_at' => now(),
-        ]);
+        return [
+            $registration->credentials->key,
+            $registration->credentials->secret,
+        ];
     }
 }
 ```
@@ -126,107 +119,6 @@ switch ($user->role) {
         echo "Viewer - read-only access";
         break;
 }
-```
-
-## API Token Management
-
-Manage API tokens for different users or applications:
-
-```php
-// Register a new application user
-$registration = $shipit->user()->register(
-    RegistrationRequestData::from([
-        'name' => 'Production API User',
-        'email' => 'api@company.com',
-        'phone' => '+358401234567',
-        'password' => 'secure-password',
-        'password_confirmation' => 'secure-password',
-        'company' => 'Company Ltd',
-        'businessId' => '1234567-8',
-    ])
-);
-
-// Store different tokens for different environments
-$tokens = [
-    'production' => $registration->apiToken,
-    'staging' => $stagingRegistration->apiToken,
-    'development' => $devRegistration->apiToken,
-];
-
-// Use appropriate token based on environment
-$connector = ShipitConnector::new($tokens[env('APP_ENV')]);
-```
-
-## Integration with Your Application
-
-Integrate user management with your application's authentication:
-
-```php
-class ShipitUserService
-{
-    public function createShipitUser(User $appUser): void
-    {
-        $connector = ShipitConnector::new(config('shipit.admin_token'));
-
-        $registration = $connector->user()->register(
-            RegistrationRequestData::from([
-                'name' => $appUser->name,
-                'email' => $appUser->email,
-                'phone' => $appUser->phone,
-                'password' => Str::random(32),
-                'password_confirmation' => Str::random(32),
-                'company' => $appUser->company->name,
-                'businessId' => $appUser->company->business_id,
-            ])
-        );
-
-        // Store Shipit API token with user record
-        $appUser->shipit_token = $registration->apiToken;
-        $appUser->shipit_user_id = $registration->userId;
-        $appUser->save();
-    }
-
-    public function getShipitConnectorForUser(User $appUser): ShipitConnector
-    {
-        return ShipitConnector::new($appUser->shipit_token);
-    }
-}
-```
-
-## User Registration Validation
-
-Validate registration data before submission:
-
-```php
-$registrationData = [
-    'name' => 'John Doe',
-    'email' => 'john@company.com',
-    'phone' => '+358401234567',
-    'password' => 'password123',
-    'password_confirmation' => 'password123',
-    'company' => 'Company Ltd',
-    'businessId' => '1234567-8',
-];
-
-// Validate email format
-if (!filter_var($registrationData['email'], FILTER_VALIDATE_EMAIL)) {
-    throw new InvalidArgumentException('Invalid email format');
-}
-
-// Validate phone format
-if (!preg_match('/^\+\d{10,15}$/', $registrationData['phone'])) {
-    throw new InvalidArgumentException('Invalid phone format');
-}
-
-// Passwords match
-if ($registrationData['password'] !== $registrationData['password_confirmation']) {
-    throw new InvalidArgumentException('Passwords do not match');
-}
-
-// Register user
-$registration = $shipit->user()->register(
-    RegistrationRequestData::from($registrationData)
-);
 ```
 
 ## Next Steps

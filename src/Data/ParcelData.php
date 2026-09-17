@@ -32,6 +32,7 @@ final class ParcelData extends Data
      * @param float                            $width          Width of the parcel in centimeters
      * @param float                            $height         Height of the parcel in centimeters
      * @param float                            $weight         Total weight of the parcel in kilograms including packaging
+     * @param Optional|string                  $contents       Human-readable contents description for the parcel
      * @param null|DangerousGoodsData|Optional $dangerousGoods Optional dangerous goods information if parcel contains hazardous materials
      */
     public function __construct(
@@ -41,6 +42,7 @@ final class ParcelData extends Data
         public readonly float $width,
         public readonly float $height,
         public readonly float $weight,
+        public readonly string|Optional $contents,
         public readonly DangerousGoodsData|Optional|null $dangerousGoods,
     ) {}
 }

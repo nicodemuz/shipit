@@ -287,5 +287,9 @@ final class ShipmentRequestData extends Data
         public readonly string|Optional $pickupInstructions,
         public readonly string|Optional $deliveryInstructions,
         public readonly string|Optional $apiContext,
+        public readonly bool|Optional $isTestShipment,
+        public readonly bool|Optional $companyIsSending,
+        public readonly bool|Optional $companyIsReceiving,
+        public readonly bool|Optional $pickup,
     ) {}
 }

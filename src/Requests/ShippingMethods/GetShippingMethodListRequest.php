@@ -57,6 +57,8 @@ final class GetShippingMethodListRequest extends Request implements HasBody
      */
     public function createDtoFromResponse(Response $response): ShippingMethodListResponseData
     {
-        return ShippingMethodListResponseData::from(['data' => $response->json()]);
+        $payload = $response->json();
+
+        return ShippingMethodListResponseData::from(is_array($payload) ? $payload : []);
     }
 }

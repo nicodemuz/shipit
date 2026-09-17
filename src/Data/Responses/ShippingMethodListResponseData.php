@@ -9,32 +9,80 @@
 
 namespace Cline\Shipit\Data\Responses;
 
-use Cline\Shipit\Dto\DataCollectionOf;
 use Cline\Shipit\Dto\Data;
 use Cline\Shipit\Dto\DataCollection;
+use Cline\Shipit\Dto\DataCollectionOf;
+use Cline\Shipit\Dto\Optional;
+use Throwable;
 
 /**
- * Represents a collection of available shipping methods from the Shipit API.
- *
- * This data object wraps a collection of shipping method responses, typically
- * returned when querying available delivery options for a specific route or
- * retrieving the complete catalog of supported shipping services.
+ * Collection of catalog shipping methods from `GET /v1/list-methods`.
  *
  * @author Brian Faust <brian@cline.sh>
  */
 final class ShippingMethodListResponseData extends Data
 {
     /**
-     * Create a new shipping method list instance.
-     *
-     * @param DataCollection<int, ShippingMethodResponseData> $data Collection of shipping method data objects,
-     *                                                              each representing a distinct delivery service
-     *                                                              with its pricing, capabilities, and requirements.
-     *                                                              The collection is indexed numerically and can be
-     *                                                              filtered or sorted based on business logic needs.
+     * @param DataCollection<int, ListedShippingMethodData> $data
      */
     public function __construct(
-        #[DataCollectionOf(ShippingMethodResponseData::class)]
+        #[DataCollectionOf(ListedShippingMethodData::class)]
         public readonly DataCollection $data,
     ) {}
+
+    /**
+     * @param array<string, mixed>|list<mixed> $payload
+     */
+    public static function from(mixed $payload): static
+    {
+        if (!is_array($payload)) {
+            return parent::from(['data' => []]);
+        }
+
+        $items = [];
+        if (array_is_list($payload)) {
+            $items = $payload;
+        } elseif (isset($payload['data']) && is_array($payload['data'])) {
+            $items = $payload['data'];
+        }
+
+        $parsed = [];
+        foreach ($items as $item) {
+            if (!is_array($item)) {
+                continue;
+            }
+
+            $serviceId = isset($item['serviceId']) && is_string($item['serviceId']) ? $item['serviceId'] : '';
+            $name = isset($item['name']) && is_string($item['name']) ? $item['name'] : null;
+            $carrier = isset($item['carrier']) && is_string($item['carrier']) ? $item['carrier'] : null;
+
+            if (
+                '' === $serviceId
+                || null === $name
+                || null === $carrier
+                || !array_key_exists('domesticDeliveries', $item)
+                || !array_key_exists('homeDelivery', $item)
+                || !array_key_exists('pickUpPoints', $item)
+            ) {
+                // Incomplete catalog rows (common on partial/test payloads) are skipped.
+                continue;
+            }
+
+            try {
+                $parsed[] = ListedShippingMethodData::from([
+                    'serviceId' => $serviceId,
+                    'name' => $name,
+                    'carrier' => $carrier,
+                    'domesticDeliveries' => (bool) $item['domesticDeliveries'],
+                    'homeDelivery' => (bool) $item['homeDelivery'],
+                    'pickUpPoints' => (bool) $item['pickUpPoints'],
+                    'logo' => isset($item['logo']) && is_string($item['logo']) ? $item['logo'] : Optional::create(),
+                ]);
+            } catch (Throwable) {
+                continue;
+            }
+        }
+
+        return new self(DataCollection::create($parsed, ListedShippingMethodData::class));
+    }
 }

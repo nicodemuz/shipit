@@ -10,42 +10,49 @@
 namespace Cline\Shipit\Data\Responses;
 
 use Cline\Shipit\Dto\Data;
+use Cline\Shipit\Dto\DataCollection;
+use Cline\Shipit\Dto\DataCollectionOf;
 use Cline\Shipit\Dto\Optional;
 
 /**
- * Represents tracking event data for a shipment from the Shipit API.
- *
- * This data object contains the tracking history and status information for a
- * specific shipment, including all transit events, current delivery status, and
- * estimated delivery timeframes.
+ * Response from `/v1/query-tracking-events`.
  *
  * @author Brian Faust <brian@cline.sh>
  */
 final class TrackingEventResponseData extends Data
 {
     /**
-     * Create a new tracking event response instance.
-     *
-     * @param string                           $trackingNumber    Unique tracking identifier for the shipment being tracked.
-     *                                                            This is the carrier-assigned tracking number used across
-     *                                                            all tracking systems and customer communications.
-     * @param array<int, array<string, mixed>> $events            Chronological list of tracking events showing the shipment's
-     *                                                            journey through the delivery network. Each event contains
-     *                                                            timestamp, location, status description, and event type
-     *                                                            information. Events are typically ordered from oldest to newest.
-     * @param Optional|string                  $status            Current delivery status of the shipment (e.g., "in_transit",
-     *                                                            "out_for_delivery", "delivered", "exception"). Provides
-     *                                                            high-level status for UI display and business logic. May
-     *                                                            be absent if carrier hasn't provided status information.
-     * @param Optional|string                  $estimatedDelivery Estimated delivery date and time in ISO 8601 format or human-readable
-     *                                                            format. Represents the carrier's current delivery estimate, which
-     *                                                            may be updated as the shipment progresses. May be absent if carrier
-     *                                                            doesn't provide delivery estimates or shipment is already delivered.
+     * @param DataCollection<int, TrackingEventItemData> $data Tracking events for the queried shipment
+     * @param Optional|string                            $trackingNumber Optional tracking number echo
+     * @param Optional|string                            $status         Optional high-level status
+     * @param Optional|string                            $estimatedDelivery Optional ETA
      */
     public function __construct(
-        public readonly string $trackingNumber,
-        public readonly array $events,
+        #[DataCollectionOf(TrackingEventItemData::class)]
+        public readonly DataCollection $data,
+        public readonly string|Optional $trackingNumber,
         public readonly string|Optional $status,
         public readonly string|Optional $estimatedDelivery,
     ) {}
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    public static function from(mixed $payload): static
+    {
+        if (!is_array($payload)) {
+            return parent::from($payload);
+        }
+
+        // Legacy / events endpoint shape: { trackingNumber, events: [...] }
+        if (!isset($payload['data']) && isset($payload['events']) && is_array($payload['events'])) {
+            $payload['data'] = $payload['events'];
+        }
+
+        if (!isset($payload['data']) || !is_array($payload['data'])) {
+            $payload['data'] = [];
+        }
+
+        return parent::from($payload);
+    }
 }
