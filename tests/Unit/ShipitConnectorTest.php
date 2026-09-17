@@ -11,6 +11,7 @@ use Cline\Shipit\Data\PartyData;
 use Cline\Shipit\Data\RegistrationRequestData;
 use Cline\Shipit\Data\Responses\ShipmentResponseData;
 use Cline\Shipit\Data\Responses\ShippingMethodListResponseData;
+use Cline\Shipit\Data\Responses\ShippingMethodsResponseData;
 use Cline\Shipit\Data\Responses\TrackingEventResponseData;
 use Cline\Shipit\Data\ShipmentRequestData;
 use Cline\Shipit\Data\ShippingMethodsRequestData;
@@ -41,6 +42,23 @@ final class ShipitConnectorTest extends TestCase
 
         $this->assertSame('https://api.shipit.fi', $connector->resolveBaseUrl());
         $this->assertInstanceOf(ShipitKeySecretAuthenticator::class, $connector->getAuthenticator());
+    }
+
+    #[Test]
+    public function it_maps_shipping_methods_error_payload_without_methods(): void
+    {
+        $response = ShippingMethodsResponseData::from([
+            'status' => 0,
+            'error' => [
+                'code' => 20,
+                'message' => 'Parcel type missing',
+            ],
+        ]);
+
+        $this->assertSame(0, $response->status);
+        $this->assertCount(0, $response->methods);
+        $this->assertIsArray($response->error);
+        $this->assertSame('Parcel type missing', $response->error['message']);
     }
 
     #[Test]

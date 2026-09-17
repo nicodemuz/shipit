@@ -57,6 +57,29 @@ final class ShippingMethodsResponseData extends Data
         public readonly DataCollection|Optional $locations,
         public readonly string|Optional $cartId,
         public readonly string|Optional $cartItemId,
-        public readonly string|Optional $error,
+        public readonly array|string|Optional $error,
     ) {}
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    public static function from(mixed $payload): static
+    {
+        if (!is_array($payload)) {
+            return parent::from([
+                'status' => 0,
+                'methods' => [],
+            ]);
+        }
+
+        if (!isset($payload['methods']) || !is_array($payload['methods'])) {
+            $payload['methods'] = [];
+        }
+
+        if (!isset($payload['status'])) {
+            $payload['status'] = 0;
+        }
+
+        return parent::from($payload);
+    }
 }
