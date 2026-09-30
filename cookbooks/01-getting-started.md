@@ -66,6 +66,7 @@ $shipit->locations()            // Manage sender/receiver addresses
 $shipit->organizations()        // Manage organizations
 $shipit->tracking()             // Track shipments
 $shipit->user()                 // Manage user account
+$shipit->creditCard()           // Add / check / remove wallet credit card
 $shipit->balance()              // Check balance and transactions
 $shipit->carrierContracts()     // Manage carrier contracts
 $shipit->consignmentTemplates() // Manage shipment templates

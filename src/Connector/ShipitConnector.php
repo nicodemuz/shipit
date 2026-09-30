@@ -15,6 +15,7 @@ use Cline\Shipit\Resources\AgentsResource;
 use Cline\Shipit\Resources\BalanceResource;
 use Cline\Shipit\Resources\CarrierContractsResource;
 use Cline\Shipit\Resources\ConsignmentTemplatesResource;
+use Cline\Shipit\Resources\CreditCardResource;
 use Cline\Shipit\Resources\LocationsResource;
 use Cline\Shipit\Resources\OrganizationMembersResource;
 use Cline\Shipit\Resources\OrganizationsResource;
@@ -163,6 +164,11 @@ final class ShipitConnector extends Connector
     public function user(): UserResource
     {
         return new UserResource($this);
+    }
+
+    public function creditCard(): CreditCardResource
+    {
+        return new CreditCardResource($this);
     }
 
     public function carrierContracts(): CarrierContractsResource

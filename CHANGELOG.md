@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-09-30
+
+### Added
+- Credit card resource for wallet top-up: `creditCard()->add()`, `has()`, `remove()`.
+- Cookbook `14-credit-card.md` documenting the Stripe redirect flow.
+
 ## [1.2.1] - 2026-09-17
 
 ### Fixed

@@ -9,10 +9,16 @@ use Cline\Shipit\Connector\ShipitConnector;
 use Cline\Shipit\Data\ParcelData;
 use Cline\Shipit\Data\PartyData;
 use Cline\Shipit\Data\RegistrationRequestData;
+use Cline\Shipit\Data\Responses\CreditCardAddResponseData;
+use Cline\Shipit\Data\Responses\CreditCardHasResponseData;
+use Cline\Shipit\Data\Responses\CreditCardRemoveResponseData;
 use Cline\Shipit\Data\Responses\ShipmentResponseData;
 use Cline\Shipit\Data\Responses\ShippingMethodListResponseData;
 use Cline\Shipit\Data\Responses\ShippingMethodsResponseData;
 use Cline\Shipit\Data\Responses\TrackingEventResponseData;
+use Cline\Shipit\Requests\CreditCard\AddCreditCardRequest;
+use Cline\Shipit\Requests\CreditCard\HasCreditCardRequest;
+use Cline\Shipit\Requests\CreditCard\RemoveCreditCardRequest;
 use Cline\Shipit\Data\ShipmentRequestData;
 use Cline\Shipit\Data\ShippingMethodsRequestData;
 use Cline\Shipit\Dto\DataCollection;
@@ -315,6 +321,78 @@ final class ShipitConnectorTest extends TestCase
         $this->assertCount(1, $response->data);
         $this->assertSame('mh.mh80', $response->data[0]->serviceId);
         $this->assertTrue($response->data[0]->pickUpPoints);
+    }
+
+    #[Test]
+    public function it_adds_credit_card_and_returns_stripe_redirect(): void
+    {
+        $mockClient = new MockClient([
+            AddCreditCardRequest::class => MockResponse::make([
+                'redirect' => 'https://checkout.stripe.com/c/pay/cs_test_123',
+            ], 200),
+        ]);
+
+        $connector = ShipitConnector::basic('merchant-key', 'merchant-secret');
+        $connector->withMockClient($mockClient);
+
+        $response = $connector->creditCard()->add('https://myapp.example/return');
+
+        $this->assertInstanceOf(CreditCardAddResponseData::class, $response);
+        $this->assertSame('https://checkout.stripe.com/c/pay/cs_test_123', $response->redirect);
+
+        $request = $mockClient->getLastPendingRequest();
+        $this->assertNotNull($request);
+        $this->assertSame('/v1/credit-card/add', $request->getRequest()->resolveEndpoint());
+        $this->assertSame(
+            ['returnUrl' => 'https://myapp.example/return'],
+            $request->body()->all(),
+        );
+    }
+
+    #[Test]
+    public function it_checks_whether_credit_card_is_configured(): void
+    {
+        $mockClient = new MockClient([
+            HasCreditCardRequest::class => MockResponse::make([
+                'hasCreditCard' => true,
+            ], 200),
+        ]);
+
+        $connector = ShipitConnector::basic('merchant-key', 'merchant-secret');
+        $connector->withMockClient($mockClient);
+
+        $response = $connector->creditCard()->has();
+
+        $this->assertInstanceOf(CreditCardHasResponseData::class, $response);
+        $this->assertTrue($response->hasCreditCard);
+
+        $request = $mockClient->getLastPendingRequest();
+        $this->assertNotNull($request);
+        $this->assertSame('/v1/credit-card/has', $request->getRequest()->resolveEndpoint());
+    }
+
+    #[Test]
+    public function it_removes_credit_card(): void
+    {
+        $mockClient = new MockClient([
+            RemoveCreditCardRequest::class => MockResponse::make([
+                'status' => 1,
+                'message' => 'Credit card removed successfully.',
+            ], 200),
+        ]);
+
+        $connector = ShipitConnector::basic('merchant-key', 'merchant-secret');
+        $connector->withMockClient($mockClient);
+
+        $response = $connector->creditCard()->remove();
+
+        $this->assertInstanceOf(CreditCardRemoveResponseData::class, $response);
+        $this->assertTrue($response->isSuccess());
+        $this->assertSame('Credit card removed successfully.', $response->message);
+
+        $request = $mockClient->getLastPendingRequest();
+        $this->assertNotNull($request);
+        $this->assertSame('/v1/credit-card/remove', $request->getRequest()->resolveEndpoint());
     }
 
     #[Test]
